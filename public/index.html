@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="AI PM Sandbox - AI 产品经理判断力训练场，闯关练决策" />
+    <meta name="description" content="在分支剧情中练习 AI 产品决策，确认选择后查看后果并形成复盘。" />
     <title>AI PM Sandbox · 判断力训练场</title>
     <link rel="stylesheet" href="/styles.css" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2318211f'/%3E%3Ccircle cx='50' cy='50' r='22' fill='%23fffdf8'/%3E%3Crect x='56' y='44' width='8' height='28' fill='%2318211f'/%3E%3Crect x='36' y='46' width='28' height='8' fill='%2318211f'/%3E%3C/svg%3E" />
   </head>
   <body>
     <div class="shell">
-      <aside class="sidebar" aria-label="AI PM Sandbox navigation">
+      <aside class="sidebar" aria-label="主导航">
         <div class="brand">
           <div class="brand-mark" aria-hidden="true">
             <span></span>
@@ -26,13 +26,13 @@
             <span id="rankLabel">Level 1</span>
             <strong id="xpLabel">0 XP</strong>
           </div>
-          <div class="progress-track" aria-label="XP progress">
+          <div class="progress-track" id="xpProgress" role="progressbar" aria-label="XP progress" aria-valuemin="0" aria-valuemax="220" aria-valuenow="0">
             <div id="xpBar" class="progress-fill"></div>
           </div>
-          <p id="rankHint">完成一关即可解锁 AI 产品技术栈徽章。</p>
+          <p id="rankHint">完成关卡，点亮对应的技术模块。</p>
         </div>
 
-        <nav class="nav-list" aria-label="Primary">
+        <nav class="nav-list" aria-label="主要页面">
           <button class="nav-button is-active" data-view="missions" accesskey="1">关卡</button>
           <button class="nav-button" data-view="stack" accesskey="2">技术栈地图</button>
           <button class="nav-button" data-view="dispatch" accesskey="3">📱 微信/飞书刷题</button>
@@ -40,17 +40,17 @@
         </nav>
 
         <div class="project-brief" id="projectBrief">
-          <div class="brief-title">🎯 这个项目是做什么的？</div>
+          <div class="brief-title">这个项目怎么用？</div>
           <div class="brief-body">
-            一个<strong>游戏化 AI 产品经理判断力训练场</strong>——通过<strong> 3 段真实职场剧情闯关</strong>（RAG 疑案 / Agent 风暴 / 幻觉迷局）练决策。
+            这里不是知识问答。你会进入一段<strong>信息不完整的产品局面</strong>，先做选择，再看它带来的后果。
             <br /><br />
-            每段剧情包含<strong> 3-4 幕转折</strong>，你的每一次选择都会影响后续的剧情走向和职场人物关系。
+            目前有<strong> 3 条剧情、8 次关键决策</strong>。文字补充是可选项，只做方案选择也能继续。
             <br /><br />
-            还可以把题目推到你自己的<strong>微信 / 飞书</strong>随时刷，做完会生成<strong>结构化批改 + 可复盘作品集</strong>，用于面试复盘。
+            通关后可以回看决策路径，把题目推到自己的<strong>微信 / 飞书</strong>，或导出复盘记录。
           </div>
         </div>
         <div class="sidebar-note">
-          <p>当前版本用本地规则评分。接入模型后，评分器可以替换成 AI 评审。</p>
+          <p>当前版本在本地按规则评分，不会把作答内容发给外部模型。</p>
           <p class="shortcut-hint">按 <kbd>?</kbd> 查看快捷键 · <kbd>D</kbd> 切换主题 · <kbd>A/B/C</kbd> 快选方案</p>
         </div>
       </aside>
@@ -58,8 +58,8 @@
       <main class="main">
         <section class="topbar">
           <div>
-            <p class="eyebrow">AI 产品经理模拟器</p>
-            <h2 id="viewTitle">从真实 AI 产品判断题开始</h2>
+            <p class="eyebrow">Product decision practice</p>
+            <h2 id="viewTitle">选一关，看看决定会把局面带到哪里</h2>
           </div>
           <div class="top-actions">
             <button class="icon-button" id="themeToggle" title="切换深色/浅色模式 (D)" aria-label="切换主题">🌙</button>
@@ -106,7 +106,7 @@
                   <p id="missionContext"></p>
                 </section>
                 <section>
-                  <h4><span>2</span> 轮到你拍板</h4>
+                  <h4><span>2</span> 需要决定</h4>
                   <p id="missionQuestion"></p>
                 </section>
               </div>
@@ -115,14 +115,16 @@
 
               <div class="choice-grid" id="choiceGrid" aria-label="Decision options"></div>
 
-              <div class="answer-area">
+              <p class="selection-status" id="selectionStatus" aria-live="polite" hidden></p>
+
+              <div class="answer-area" id="answerArea" hidden>
                 <div class="label-row">
                   <div>
-                    <label for="answerInput">补充你的判断</label>
+                    <label for="answerInput" id="answerLabel">补充你的判断</label>
                     <span class="optional-badge">可选</span>
                   </div>
                   <div class="label-row-right">
-                    <span id="answerCount">0 / 20 字（可选）</span>
+                    <span id="answerCount">0 字 · 文字可选</span>
                     <button class="voice-button" id="voiceButton" type="button" title="使用语音补充判断" aria-label="语音输入">
                       <span class="voice-icon" aria-hidden="true">🎤</span>
                       <span class="voice-label">语音输入</span>
@@ -130,7 +132,7 @@
                     </button>
                   </div>
                 </div>
-                <p class="answer-helper">不填写也可以直接拿反馈；想补充取舍、风险或理由时再写。</p>
+                <p class="answer-helper" id="answerHelper">想说明取舍或风险时再写；不填写也能继续。</p>
                 <textarea id="answerInput" rows="5" placeholder="可选：补充你为什么选择这个方案，以及你会如何控制风险。"></textarea>
                 <div class="coach-buttons" id="coachButtons" aria-label="Answer helpers"></div>
               </div>
@@ -142,8 +144,8 @@
               <button class="next-stage-button" id="nextStageButton" type="button" hidden></button>
 
               <div class="panel-actions">
-                <button class="primary-action" id="scoreButton">📝 写好了 · 拿完整批改 <span class="kbd">Ctrl+Enter</span></button>
-                <button class="secondary-action ghost" id="shareCardButton">生成分享卡片</button>
+                <button class="primary-action" id="scoreButton">结束本关并查看复盘 <span class="kbd">Ctrl+Enter</span></button>
+                <button class="secondary-action ghost" id="shareCardButton">分享这幕结果</button>
               </div>
 
               <div class="score-panel" id="scorePanel" hidden>
@@ -160,7 +162,9 @@
                   <p id="feedbackText"></p>
                 </div>
                 <div class="panel-actions mt-16">
-                  <button class="secondary-action" id="shareScoreCardButton">生成分数卡片</button>
+                  <button class="primary-action" id="shareScoreCardButton">分享本关结果</button>
+                  <button class="secondary-action" id="viewPortfolioButton">查看作品集</button>
+                  <button class="secondary-action ghost" id="replayScenarioButton">重新挑战本关</button>
                 </div>
               </div>
             </article>
@@ -183,10 +187,10 @@
           <div class="dispatch-layout">
             <div class="dispatch-main">
               <div class="section-intro">
-                <p class="eyebrow">Personal IM Practice</p>
-                <h3>把题目推到你自己的微信 / 飞书，随时随地打开就能刷一题</h3>
+                <p class="eyebrow">Personal IM practice</p>
+                <h3>把当前题目发到自己的微信、飞书或 Telegram</h3>
                 <p style="color:var(--text-muted);margin-top:6px;font-size:14px;line-height:1.65;">
-                  配好机器人后，题目会推送到你自己的群里或自己的 Bot 对话中，通勤路上、午休时都能拿出来做～
+                  配置机器人后，题目会进入指定的群或 Bot 对话。Demo 模式只生成预览，不会真正发送。
                 </p>
               </div>
 
@@ -210,12 +214,12 @@
 
                 <label class="check-row">
                   <input id="demoMode" type="checkbox" checked />
-                  <span>🎮 Demo 模式（先不真发，只预览消息长啥样——首次配置推荐先开着）</span>
+                  <span>Demo 模式：只预览消息，不真正发送</span>
                 </label>
 
                 <label>
                   附加鼓励的话（可选，会跟着题目一起发）
-                  <textarea id="dispatchNote" rows="4" placeholder="例如：今天也要加油刷一题！5 分钟搞定，坚持就是胜利 💪"></textarea>
+                  <textarea id="dispatchNote" rows="4" placeholder="例如：午休前做完这道题，晚上再看复盘。"></textarea>
                 </label>
 
                 <label class="check-row">
@@ -229,23 +233,23 @@
                 </label>
 
                 <div class="panel-actions">
-                  <button class="primary-action" type="submit">🚀 推送当前题目到我的 IM</button>
-                  <button class="secondary-action" id="dryRunButton" type="button">👀 先预览消息内容</button>
+                  <button class="primary-action" type="submit">发送当前题目</button>
+                  <button class="secondary-action" id="dryRunButton" type="button">预览消息</button>
                 </div>
               </form>
             </div>
 
             <aside class="dispatch-aside">
-              <h4>怎么接？3 分钟搞定</h4>
-              <p><strong>企业微信 / 飞书：</strong>随便拉一个只有你自己的群 → 群设置里加「自定义机器人」→ 复制 Webhook 贴进来就搞定。</p>
-              <p><strong>个人微信：</strong>目前个人微信没有官方稳定的机器人接口，推荐用「企业微信」作为替代，一样能在微信 App 里收到消息。</p>
+              <h4>连接方式</h4>
+              <p><strong>企业微信 / 飞书：</strong>新建一个自己的群，在群设置中添加自定义机器人，再把 Webhook 填到左侧。</p>
+              <p><strong>个人微信：</strong>目前没有适合本项目的官方机器人接口，可以改用企业微信群机器人。</p>
               <p><strong>Telegram：</strong>找 @BotFather 建个 Bot，和 Bot 说一句话，就能自己给自己推题了。</p>
               <div class="tip-box">
-                <strong>💡 用法建议</strong>
-                <p>可以每天早上给自己推一道题，午休时在手机上写好答案回到电脑上提交拿评分～</p>
+                <strong>使用提示</strong>
+                <p>不确定配置是否正确时，先保留 Demo 模式并检查预览内容。</p>
               </div>
               <p style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--border-subtle);font-size:12px;color:var(--text-subtle);">
-                ⚠️ 安全提醒：Webhook URL 仅在你主动发送时交给本项目后端调用；勾选「记住配置」后才会保存在本机浏览器。别把 URL 贴到公开仓库哦。
+                安全提醒：Webhook URL 只在主动发送时交给本项目后端调用；勾选「记住配置」后才会保存在本机浏览器。不要把 URL 提交到公开仓库。
               </p>
             </aside>
           </div>
@@ -256,7 +260,7 @@
             <div class="section-intro-row">
               <div>
                 <p class="eyebrow">Portfolio</p>
-                <h3>每次挑战都会沉淀成可复盘作品</h3>
+                <h3>把决定、后果和复盘留在一起</h3>
               </div>
               <div class="panel-actions">
                 <button class="primary-action" id="exportMdButton">📄 导出 Markdown <span class="kbd">E</span></button>
@@ -269,17 +273,17 @@
       </main>
     </div>
 
-    <dialog id="previewDialog" class="preview-dialog">
+    <dialog id="previewDialog" class="preview-dialog" aria-labelledby="previewDialogTitle">
       <div class="dialog-header">
-        <h3>发送预览</h3>
+        <h3 id="previewDialogTitle">发送预览</h3>
         <button class="icon-button" id="closePreviewButton" aria-label="关闭">×</button>
       </div>
       <pre id="previewContent"></pre>
     </dialog>
 
-    <dialog id="helpDialog" class="preview-dialog">
+    <dialog id="helpDialog" class="preview-dialog" aria-labelledby="helpDialogTitle">
       <div class="dialog-header">
-        <h3>⌨️ 键盘快捷键</h3>
+        <h3 id="helpDialogTitle">⌨️ 键盘快捷键</h3>
         <button class="icon-button" id="closeHelpButton" aria-label="关闭">×</button>
       </div>
       <div class="help-content">
@@ -293,19 +297,19 @@
           <div class="help-item"><kbd>?</kbd> 显示 / 关闭此帮助</div>
           <div class="help-item"><kbd>Alt</kbd>+<kbd>1-4</kbd> 切换视图 (关卡/技术栈/IM/作品集)</div>
         </div>
-        <p class="help-foot">💡 你也可以在浏览器里 <code>localStorage.clear()</code> 彻底重置所有进度和配置。</p>
+        <p class="help-foot">想从头开始时，使用页面上的「重置进度」即可清空闯关记录。</p>
       </div>
     </dialog>
 
-    <dialog id="shareDialog" class="share-dialog">
+    <dialog id="shareDialog" class="share-dialog" aria-labelledby="shareDialogTitle">
       <div class="dialog-header">
-        <h3 id="shareDialogTitle">📸 分享卡片</h3>
+        <h3 id="shareDialogTitle">分享卡片</h3>
         <button class="icon-button" id="closeShareButton" aria-label="关闭">×</button>
       </div>
       <div id="shareCardContainer" class="share-card-container"></div>
       <div class="panel-actions mt-16">
-        <button class="primary-action" id="downloadShareCard">⬇️ 下载 PNG</button>
-        <button class="secondary-action" id="copyShareHtml">📋 复制 HTML</button>
+        <button class="primary-action" id="downloadShareCard">下载图片</button>
+        <button class="secondary-action" id="copyShareImage">复制卡片</button>
       </div>
     </dialog>
 

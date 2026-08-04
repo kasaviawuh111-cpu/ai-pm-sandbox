@@ -1,7 +1,7 @@
 {
   "name": "ai-pm-sandbox",
   "version": "0.2.0",
-  "description": "一个游戏化的 AI 产品经理训练沙盒——沿能力路径完成真实场景决策，也可把题目推送到自己的 IM 机器人随时练习。",
+  "description": "在分支剧情中练习 AI 产品决策，记录每幕选择、后果与复盘，并可推送到个人 IM。",
   "type": "module",
   "main": "server.js",
   "bin": {
@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "test": "node --test test/server.test.js",
+    "test": "node --test test/*.test.js",
     "docker:build": "docker build -t ai-pm-sandbox .",
     "docker:run": "docker run -p 4173:4173 ai-pm-sandbox"
   },

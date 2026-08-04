@@ -130,6 +130,7 @@ function buildQuestionMessage({ scenario, user, includeRubric, note }) {
   const context = sanitizeText(s?.context, "");
   const constraints = Array.isArray(s?.constraints) ? s.constraints : [];
   const rubric = Array.isArray(s?.rubric) ? s.rubric : [];
+  const choices = Array.isArray(s?.choices) ? s.choices.filter((choice) => !choice?.isFinal) : [];
   const sender = sanitizeText(user?.name, "AI PM Sandbox");
   const extraNote = sanitizeText(note, "");
 
@@ -150,6 +151,15 @@ function buildQuestionMessage({ scenario, user, includeRubric, note }) {
     lines.push("", "约束：", ...constraints.map((item) => `- ${sanitizeText(item)}`));
   }
 
+  if (choices.length) {
+    lines.push("", "可选方案：", ...choices.slice(0, 3).map((choice, index) => {
+      const label = String.fromCharCode(65 + index);
+      const title = sanitizeText(choice?.title, `方案 ${label}`);
+      const detail = sanitizeText(choice?.text, "");
+      return `${label}. ${title}${detail ? `：${detail}` : ""}`;
+    }));
+  }
+
   if (includeRubric && rubric.length) {
     lines.push("", "评审维度：", ...rubric.map((item) => `- ${sanitizeText(item)}`));
   }
@@ -158,7 +168,9 @@ function buildQuestionMessage({ scenario, user, includeRubric, note }) {
     lines.push("", "补充说明：", extraNote);
   }
 
-  lines.push("", "请用 5-8 句话回答：目标用户、AI 能力边界、数据/评估方案、风险控制、下一步实验。");
+  lines.push("", choices.length
+    ? "先选一个方案；如有需要，再补充你的主要取舍或调整条件。"
+    : "文字补充可选；写清主要取舍或调整条件即可。");
   return lines.join("\n");
 }
 
@@ -326,7 +338,7 @@ async function handleSendQuestion(req, res) {
         message: text,
         requestBody: body,
         note: payload.demoMode
-          ? "🎮 Demo 模式：并未真正发送到 IM，消息内容已生成，可用于预览、截图和演示。配置好 Webhook 后取消「Demo 模式」即可真发。"
+          ? "Demo 模式只生成了消息预览，没有真正发送。关闭 Demo 模式后才会调用 Webhook。"
           : null
       });
     }
@@ -354,7 +366,7 @@ function buildPortfolioMarkdown(portfolio) {
     : 0;
 
   const lines = [
-    "# 🎯 AI PM Sandbox — 个人作品集",
+    "# AI PM Sandbox · 决策复盘",
     "",
     `> 生成时间：${new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" })}`,
     `> 完成关卡：${items.length} 关 · 累计 XP：${totalXp} · 平均得分：${avgScore}`,
@@ -364,7 +376,7 @@ function buildPortfolioMarkdown(portfolio) {
   ];
 
   if (!items.length) {
-    lines.push("还没有完成任何关卡哦～去闯关吧！");
+    lines.push("还没有完成任何关卡。");
     return lines.join("\n");
   }
 
@@ -372,17 +384,18 @@ function buildPortfolioMarkdown(portfolio) {
     const scenario = item.scenario || {};
     const review = item.review || {};
     const dimensions = review.dimensions || [];
+    const history = Array.isArray(item.stageHistory) ? item.stageHistory : [];
 
     lines.push(`## ${index + 1}. ${scenario.title || item.scenarioId || "关卡"}`);
     lines.push("");
     lines.push(`- **等级**：${scenario.level || "-"}`);
-    lines.push(`- **我的选择**：${item.choiceTitle || "-"}`);
+    lines.push(`- **关键决定**：${item.decisionTitle || item.choiceTitle || "-"}`);
     lines.push(`- **得分**：${item.score || 0} / 100 · **奖励 XP**：${item.xp || 0}`);
     lines.push(`- **完成时间**：${item.finishedAt ? new Date(item.finishedAt).toLocaleString("zh-CN") : "-"}`);
     lines.push("");
 
     if (dimensions.length) {
-      lines.push("### 📊 五维评分");
+      lines.push("### 维度评分");
       lines.push("");
       lines.push("| 维度 | 得分 |");
       lines.push("|:-----|-----:|");
@@ -392,13 +405,28 @@ function buildPortfolioMarkdown(portfolio) {
       lines.push("");
     }
 
-    lines.push("### 💡 我的答案");
+    if (history.length) {
+      lines.push("### 决策路径");
+      lines.push("");
+      history.forEach((step, stepIndex) => {
+        lines.push(`#### 第 ${stepIndex + 1} 幕 · ${step.choiceTitle || "未命名决定"}`);
+        lines.push("");
+        if (step.answer) lines.push(`- **当时的判断**：${step.answer}`);
+        if (step.consequence) lines.push(`- **剧情结果**：${step.consequence}`);
+        lines.push("");
+      });
+    }
+
+    lines.push("### 最终复盘");
     lines.push("");
-    lines.push(item.answer || "(未作答)");
+    const hasStageAnswer = history.some((step) => step.answer);
+    lines.push(item.finalAnswer || item.answer || (hasStageAnswer
+      ? "（最终复盘未填写；各幕补充判断已保留在上方决策路径中。）"
+      : "（本次只完成了方案选择，没有补充文字。）"));
     lines.push("");
 
     if (review.feedback) {
-      lines.push("### 🎯 下一步提升");
+      lines.push("### 复盘结论");
       lines.push("");
       lines.push(`> ${review.feedback}`);
       lines.push("");
@@ -411,9 +439,95 @@ function buildPortfolioMarkdown(portfolio) {
   lines.push("");
   lines.push("---");
   lines.push("");
-  lines.push("_本文由 AI PM Sandbox 一键导出 — 面试前打印出来看，效果更佳 ✨_");
+  lines.push("_由 AI PM Sandbox 导出。_");
 
   return lines.join("\n");
+}
+
+function renderInlineMarkdown(value) {
+  return escapeHtml(value)
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+}
+
+function markdownToHtml(markdown) {
+  const lines = String(markdown || "").split(/\r?\n/);
+  const html = [];
+  const isSpecialLine = (line) => /^(#{1,4}\s|>\s?|---$|-\s|\|)/.test(line);
+  let index = 0;
+
+  while (index < lines.length) {
+    const line = lines[index].trim();
+    if (!line) {
+      index += 1;
+      continue;
+    }
+
+    const heading = line.match(/^(#{1,4})\s+(.+)$/);
+    if (heading) {
+      const level = heading[1].length;
+      html.push(`<h${level}>${renderInlineMarkdown(heading[2])}</h${level}>`);
+      index += 1;
+      continue;
+    }
+
+    if (line === "---") {
+      html.push("<hr />");
+      index += 1;
+      continue;
+    }
+
+    if (line.startsWith(">")) {
+      const quote = [];
+      while (index < lines.length && lines[index].trim().startsWith(">")) {
+        quote.push(renderInlineMarkdown(lines[index].trim().replace(/^>\s?/, "")));
+        index += 1;
+      }
+      html.push(`<blockquote>${quote.join("<br />")}</blockquote>`);
+      continue;
+    }
+
+    if (line.startsWith("- ")) {
+      const items = [];
+      while (index < lines.length && lines[index].trim().startsWith("- ")) {
+        items.push(`<li>${renderInlineMarkdown(lines[index].trim().slice(2))}</li>`);
+        index += 1;
+      }
+      html.push(`<ul>${items.join("")}</ul>`);
+      continue;
+    }
+
+    if (line.startsWith("|")) {
+      const rows = [];
+      while (index < lines.length && lines[index].trim().startsWith("|")) {
+        const cells = lines[index].trim().slice(1, -1).split("|").map((cell) => cell.trim());
+        if (!cells.every((cell) => /^:?-{3,}:?$/.test(cell))) rows.push(cells);
+        index += 1;
+      }
+      if (rows.length) {
+        const [header, ...body] = rows;
+        html.push(`<table><thead><tr>${header.map((cell) => `<th>${renderInlineMarkdown(cell)}</th>`).join("")}</tr></thead><tbody>${body.map((row) => `<tr>${row.map((cell) => `<td>${renderInlineMarkdown(cell)}</td>`).join("")}</tr>`).join("")}</tbody></table>`);
+      }
+      continue;
+    }
+
+    if (/^_.+_$/.test(line)) {
+      html.push(`<p><em>${renderInlineMarkdown(line.slice(1, -1))}</em></p>`);
+      index += 1;
+      continue;
+    }
+
+    const paragraph = [];
+    while (index < lines.length) {
+      const candidate = lines[index].trim();
+      if (!candidate || isSpecialLine(candidate) || /^_.+_$/.test(candidate)) break;
+      paragraph.push(renderInlineMarkdown(candidate));
+      index += 1;
+    }
+    if (paragraph.length) html.push(`<p>${paragraph.join("<br />")}</p>`);
+  }
+
+  return html.join("\n");
 }
 
 async function handleExportPortfolio(req, res) {
@@ -434,6 +548,8 @@ async function handleExportPortfolio(req, res) {
   h1 { border-bottom: 3px solid #1f7a5c; padding-bottom: 12px; }
   h2 { margin-top: 36px; color: #11533e; border-left: 4px solid #1f7a5c; padding-left: 12px; }
   h3 { color: #2f6f9f; margin-top: 20px; }
+  h4 { margin: 20px 0 8px; }
+  p, ul { margin: 10px 0; }
   blockquote { background: #f5f2eb; padding: 12px 18px; border-left: 4px solid #c9992d; margin: 12px 0; color: #65716d; }
   table { border-collapse: collapse; width: 100%; margin: 12px 0; }
   th, td { border: 1px solid #d8d1c4; padding: 8px 14px; text-align: left; }
@@ -442,29 +558,7 @@ async function handleExportPortfolio(req, res) {
 </style>
 </head>
 <body>
-${escapeHtml(markdown)
-  .replace(/^### (.*$)/gm, "<h3>$1</h3>")
-  .replace(/^## (.*$)/gm, "<h2>$1</h2>")
-  .replace(/^# (.*$)/gm, "<h1>$1</h1>")
-  .replace(/^> (.*$)/gm, "<blockquote>$1</blockquote>")
-  .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-  .replace(/^\|(.*)\|$/gm, (m) => {
-    if (m.includes("---")) return "";
-    const cells = m.slice(1, -1).split("|").map((c) => `<td>${c.trim()}</td>`).join("");
-    return cells.includes("<td> 得分 </td>") || cells.includes("<td>维度</td>")
-      ? `<tr>${cells.replace(/<td>/g, "<th>").replace(/<\/td>/g, "</th>")}</tr>`
-      : `<tr>${cells}</tr>`;
-  })
-  .replace(/(<tr>.*<\/tr>\n?)+/g, (m) => `<table>${m}</table>`)
-  .replace(/^---$/gm, "<hr/>")
-  .replace(/^- (.*)$/gm, "<li>$1</li>")
-  .replace(/(<li>.*<\/li>\n?)+/g, (m) => `<ul>${m}</ul>`)
-  .replace(/\n\n/g, "</p><p>")
-  .replace(/^/gm, "<p>")
-  .replace(/$/gm, "</p>")
-  .replace(/<p><\/p>/g, "")
-  .replace(/<p><(h[1-6]|ul|ol|table|blockquote|hr)/g, "<$1")
-  .replace(/<\/(h[1-6]|ul|ol|table|blockquote|hr)><\/p>/g, "</$1>")}
+${markdownToHtml(markdown)}
 </body>
 </html>`;
       return sendJson(res, 200, { ok: true, format, content: html, filename: `ai-pm-portfolio-${Date.now()}.html` });
