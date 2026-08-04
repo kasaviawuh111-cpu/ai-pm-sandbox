@@ -32,6 +32,9 @@ temp/
 *.swo
 *~
 
+# GitHub CLI 本地凭据（临时）
+.tmpgh/
+
 # 导出的作品集
 exports/
 portfolio-*.md
