@@ -41,8 +41,8 @@ const scenarios = [
         choices: [
           {
             id: "s1a-all",
-            title: "A. 全量 AI 自动回复",
-            text: "直接把所有重复问题切给 AI，客户看不到人工入口。先降本再说，出了问题客服补。",
+            title: "效率优先的自动回复",
+            text: "把系统识别出的高频重复问题交给 AI 自动回复，低置信度进入后台队列；先用监控看板观察异常，再逐步扩充覆盖。",
             score: 22,
             stageEffect: "ceoHappy: +2, ccoTrust: -3, riskLevel: high",
             consequence: "CEO 当场夸你「有执行力」。林姐冷笑一声，在笔记本上写了五个字：「出了事找你」。两周后，AI 如约上线。",
@@ -50,7 +50,7 @@ const scenarios = [
           },
           {
             id: "s1a-copilot",
-            title: "B. 客服 Copilot 模式（推荐）",
+            title: "客服审核的 AI 草稿",
             text: "AI 只给客服写答案草稿 + 找知识来源，最终发出什么由客服人来确认。对外完全不暴露 AI。",
             score: 90,
             stageEffect: "ceoHappy: 0, ccoTrust: +2, riskLevel: low",
@@ -59,7 +59,7 @@ const scenarios = [
           },
           {
             id: "s1a-faq",
-            title: "C. 只做静态 FAQ 整理",
+            title: "先治理知识再自动化",
             text: "AI 风险太大，先把 1280 篇文档人工整理成 200 条标准 FAQ，走关键词匹配流程。",
             score: 52,
             stageEffect: "ceoHappy: -1, ccoTrust: +1, riskLevel: low",
@@ -86,8 +86,8 @@ const scenarios = [
         choices: [
           {
             id: "s2a-patch",
-            title: "A. 补丁式修复",
-            text: "把出错的案例收集成黑名单，关键词命中就转人工。周五汇报只报好的数据。",
+            title: "建立错误模式黑名单",
+            text: "把已知错误归纳成关键词和案例黑名单，命中后转人工；周五先汇报修复进展，等根因明确后再补充完整风险数据。",
             score: 18,
             stageEffect: "shortTermFix: 1, longTermRisk: +4, trust: -2",
             consequence: "黑名单加了 37 条，但第 38 条总会冒出来。林姐看了你的汇报材料，什么都没说，把自己的那页客户流失预警抽走了。",
@@ -95,7 +95,7 @@ const scenarios = [
           },
           {
             id: "s2a-boundary",
-            title: "B. 重新画边界",
+            title: "按风险类型设置回答边界",
             text: "立刻盘点：哪些类型的问题 AI 目前不能碰？明确「禁止 AI 回答」的清单，上线强制转人。",
             score: 86,
             stageEffect: "shortTermFix: 2, longTermRisk: -2, trust: +2",
@@ -104,7 +104,7 @@ const scenarios = [
           },
           {
             id: "s2a-eval",
-            title: "C. 紧急建评测集",
+            title: "先建立离线评测基线",
             text: "暂停新功能，用过去一周的真实工单抽出 50 条做黄金评测集，每天晚上跑一次 AI 的准确率。",
             score: 74,
             stageEffect: "shortTermFix: 1, longTermRisk: -1, trust: +1",
@@ -125,7 +125,7 @@ const scenarios = [
         choices: [
           {
             id: "s3a-rollback",
-            title: "A. 直接回滚，全量切回人工",
+            title: "暂时回到人工服务",
             text: "认栽，AI 先下了。下个月准备好了再上。",
             score: 58,
             stageEffect: "riskZero: 1, loss: -2, credit: -1",
@@ -134,7 +134,7 @@ const scenarios = [
           },
           {
             id: "s3a-layered",
-            title: "B. 分层策略 + 熔断开关（推荐）",
+            title: "按客户风险分层运行",
             text: "VIP 客户 100% 人工 + AI 辅助草稿；非 VIP 非投诉 AI 可答但每一条都带引用来源 + 「不对找人工」悬浮按钮；加一个你手机上的秒级熔断总开关。",
             score: 94,
             stageEffect: "riskZero: 1, loss: 0, credit: +3",
@@ -143,8 +143,8 @@ const scenarios = [
           },
           {
             id: "s3a-promise",
-            title: "C. 承诺下周全修好",
-            text: "给林姐和 CEO 画大饼：工程下周就优化 RAG，到时候准确率肯定上 90%，再坚持一周。",
+            title: "用准确率目标换取继续试点",
+            text: "以一周为观察窗口，承诺把准确率提升到 90% 后再复盘是否扩大范围，先争取保留当前试点。",
             score: 26,
             stageEffect: "riskZero: 0, loss: -3, credit: -3",
             consequence: "你说出口的瞬间就后悔了。工程排期你都没确认过。果然，第二天你就收到了工程主管的钉钉消息：「你答应的 90% 准确率，你来负责上线哈，我这边排期要下下周。」",
@@ -216,8 +216,8 @@ const scenarios = [
         choices: [
           {
             id: "a1-full",
-            title: "A. 端到端全自动闭环",
-            text: "Agent 自动读线索 → 自动查 CRM → 自动写邮件 → 一键全发。销售只看结果。",
+            title: "自动化优先的完整闭环",
+            text: "先限定白名单客户，由 Agent 自动查 CRM、生成并发送邮件；销售每天抽检结果，用异常率决定是否扩大自动化范围。",
             score: 28,
             stageEffect: "tonyHappy: +3, zhouTrust: -4, blastRadius: 5/5",
             consequence: "Tony 当场拍你肩膀：「兄弟够意思」。老周在评审会最后留了 30 秒，说「方案我保留意见，邮件出了事法务部不背」。",
@@ -225,7 +225,7 @@ const scenarios = [
           },
           {
             id: "a1-gates",
-            title: "B. 动作分级 + 高风险确认（推荐）",
+            title: "按动作风险设置确认",
             text: "分层：读数据/整理/写草稿这些 100% 自动；发邮件/改成交金额/删客户这些必须人确认。",
             score: 92,
             stageEffect: "tonyHappy: +1, zhouTrust: +2, blastRadius: 1/5",
@@ -234,7 +234,7 @@ const scenarios = [
           },
           {
             id: "a1-suggest",
-            title: "C. Agent 只给建议，所有动作人工做",
+            title: "保留人工执行的智能助手",
             text: "保守方案：Agent 生成一个待办清单，销售一条条手动执行。完全不碰发送和修改。",
             score: 64,
             stageEffect: "tonyHappy: -1, zhouTrust: +3, blastRadius: 0/5",
@@ -261,8 +261,8 @@ const scenarios = [
         choices: [
           {
             id: "a2-ignore",
-            title: "A. 先压下来，周末再修",
-            text: "先停掉最严重的那几个触发场景，周报只报正面数据，周末加班改好周一上线。",
+            title: "先内部修复，再统一复盘",
+            text: "先停掉最严重的触发场景，周末完成根因确认和修复验证，周一拿着完整结论统一同步，避免半成品信息引发恐慌。",
             score: 22,
             stageEffect: "shortTerm: -2, longTerm: -4, trust: -3",
             consequence: "你把群消息设为免打扰，写了一版很漂亮的周报。周五下午，Tony 转发了一封客户邮件到 CEO 那里，标题是「关于贵司近期邮件服务异常的正式问询函」。CEO 把你、老周、Tony 喊到会议室，第一句是：「你们谁能告诉我，为什么我是最后一个知道的？」",
@@ -270,7 +270,7 @@ const scenarios = [
           },
           {
             id: "a2-triple",
-            title: "B. 立刻止血 + 主动通报 + 加固闸门（推荐）",
+            title: "立即止血并同步干系人",
             text: "三步并行：① 停掉高风险通道 + 批量撤回能撤回的 ② 1 小时内写一份「事故初步通报」同步给老周/Tony/CEO，不甩锅 ③ 紧急加固：加「同客户 X 小时内去重」「批量发送必须过目关键信息」。",
             score: 94,
             stageEffect: "shortTerm: -1, longTerm: +3, trust: +4",
@@ -279,8 +279,8 @@ const scenarios = [
           },
           {
             id: "a2-blame",
-            title: "C. 甩锅：工程/数据/销售的问题",
-            text: "公司名写错是数据清洗的锅，批量不看是销售的锅，邮件接口重发是工程的锅，我只是产品经理。",
+            title: "按责任模块分别推进修复",
+            text: "按模块推进：数据团队处理公司名，工程补幂等，销售加强复核；产品统一跟踪进度，等各方结论齐全后汇总汇报。",
             score: 14,
             stageEffect: "shortTerm: 0, longTerm: -5, trust: -5",
             consequence: "在汇报会上你把责任拆得清清楚楚，工程主管、数据主管、Tony 三个人轮番瞪你。会议结束后，你收到一条老周发来的私信：「产品经理是最终负责人，不是传声筒。你这个做事方式，我不认可。」",
@@ -300,7 +300,7 @@ const scenarios = [
         choices: [
           {
             id: "a3-zhou",
-            title: "A. 全按老周说的做",
+            title: "先满足完整合规清单",
             text: "法务要求是红线，12 条全部硬上，Tony 那边解释一下。",
             score: 58,
             stageEffect: "zhouOK: +2, tonyOK: -3, shipOK: -1",
@@ -309,7 +309,7 @@ const scenarios = [
           },
           {
             id: "a3-balance",
-            title: "B. 分级合规模型（推荐）",
+            title: "按风险分级落实合规",
             text: "把 12 条拆成「红线（必须做）+ 黄线（根据动作风险调整）+ 绿线（可协商）」。比如：红线=日志/撤回/幂等（不管什么动作必须有）；黄线=5秒确认只对批量>10封或金额>X万的场景启用；绿线=新销售权限，Tony 说可以的可以缩短到 1 周。",
             score: 95,
             stageEffect: "zhouOK: +2, tonyOK: +2, shipOK: +2",
@@ -318,8 +318,8 @@ const scenarios = [
           },
           {
             id: "a3-tony",
-            title: "C. 听 Tony 的，和法务打太极",
-            text: "上线先把合规做薄，等用户量起来了再慢慢补。出事了我扛。",
+            title: "优先保留效率体验",
+            text: "首期先上线日志、撤回和幂等，保留顺畅的批量体验；权限分级和强制停留放进下一迭代，用真实使用数据再校准。",
             score: 32,
             stageEffect: "zhouOK: -4, tonyOK: +3, shipOK: +1",
             consequence: "Tony 非常开心，项目按时推进。但三周后出了一个更大的事——一个离职的前员工用 Agent 批量导出了 2000 条客户数据发了私人邮箱。老周查日志的时候发现「权限分级」根本没做。CEO 的会开了两个小时，你从会议室出来的时候，知道自己在这家公司的晋升窗口已经关了。",
@@ -372,7 +372,7 @@ const scenarios = [
         choices: [
           {
             id: "h1-model",
-            title: "A. 加预算换更强的模型 + 更长上下文",
+            title: "升级模型降低事实误差",
             text: "幻觉是模型能力问题，把模型从 X 换成 Y，拉长上下文把整份年报喂进去，应该就准了。",
             score: 34,
             stageEffect: "engHappy: +2, chenTrust: -3, riskLevel: 5/5",
@@ -381,7 +381,7 @@ const scenarios = [
           },
           {
             id: "h1-grounded",
-            title: "B. 强制引用 + 置信度标签（推荐）",
+            title: "增加引用与置信度提示",
             text: "没有找到原文引用的数字一律不给；有引用的显示「来自 XX 报告第 X 页」；并在数字旁边加上 95% / 70% / 40% 的置信标。",
             score: 93,
             stageEffect: "engHappy: -1, chenTrust: +3, riskLevel: 1/5",
@@ -390,8 +390,8 @@ const scenarios = [
           },
           {
             id: "h1-disclaimer",
-            title: "C. 底部加个大的免责声明",
-            text: "每条回答下面放一句「不构成投资建议，数据仅供参考」。法律上免责就够了。",
+            title: "强化风险声明与使用规范",
+            text: "在关键数字旁强化风险声明，同时培训顾问必须二次核验，并通过抽查机制减少未经确认就对客户引用的情况。",
             score: 42,
             stageEffect: "engHappy: +1, chenTrust: -2, riskLevel: 4/5",
             consequence: "法务说「声明我可以帮你们写得更严一点」。一周后陈姐直接把声明截图发你：「我客户说——你们自己都知道数据不准，还给我看？」免责声明写得越重，客户越觉得「你们产品自己都不信，凭什么让我信」。",
@@ -417,8 +417,8 @@ const scenarios = [
         choices: [
           {
             id: "h2-minimal",
-            title: "A. 最小改动：出事的地方修一下就行",
-            text: "稀土那类不知道的问题让 AI 说不知道，其他不变。",
+            title: "扩充高风险案例规则库",
+            text: "把本次事故和相似偏门领域沉淀成高风险案例库，持续扩充拒答规则，并用每周抽检补齐新出现的边界。",
             score: 46,
             stageEffect: "compliance: -2, team: -1, user: -2",
             consequence: "你改了稀土的 case，又加了 50 条类似的拒答词。合规说「太零散了，不成体系，我们过不了。」果然，一周后 AI 在另一个偏门领域又编了新的数字。治标不治本。",
@@ -426,7 +426,7 @@ const scenarios = [
           },
           {
             id: "h2-systematic",
-            title: "B. 系统性四件套（推荐）",
+            title: "补全可信交互闭环",
             text: "在引用+置信度基础上，再加：①拒答链（具体推荐/超范围→引导转后台分析师+一键打电话）②心智教育（产品每屏反复提示「AI 是辅助不是结论」）③审计日志（每一条回答的模型版本+引用+时间戳存 180 天）④一键反馈（顾问点「这条不准」，自动进入优化队列）。",
             score: 96,
             stageEffect: "compliance: +3, team: +2, user: +3",
@@ -435,8 +435,8 @@ const scenarios = [
           },
           {
             id: "h2-overcorrect",
-            title: "C. 过度防御：AI 只能做总结不能给数字",
-            text: "数字型问题全部拒绝，只给纯文字总结。把所有可能出错的地方都封死。",
+            title: "收缩到低风险能力范围",
+            text: "首期只开放检索和文字总结，数字与具体建议统一转人工；等评测稳定后，再按领域逐步开放高价值能力。",
             score: 58,
             stageEffect: "compliance: +3, team: -3, user: -2",
             consequence: "合规 100% 过了。但一周后，顾问的使用率从每天人均 12 次掉到了 1 次。「不能查数字，我用它干嘛？我自己 Wind 查得比它快。」产品成了摆设。",
@@ -539,6 +539,7 @@ const state = {
   stageChoices: {},
   stageHistory: [],
   currentStageConsequenceShown: false,
+  selectedStackKey: null,
   draftAnswers: {},
   progress: loadJson("ai-pm-sandbox-progress", {}),
   config: loadJson("ai-pm-sandbox-config", {}),
@@ -701,7 +702,7 @@ function getContextForStage(scenario, stage) {
 function getCoachPrompts(scenario) {
   const stage = getCurrentStage(scenario);
   const choice = stage ? getSelectedChoiceForStage(stage) : getSelectedChoice(scenario);
-  const choiceTitle = choice ? choice.title : "推荐方案";
+  const choiceTitle = choice ? choice.title : "当前方案";
   return [
     {
       label: "一句话理由",
@@ -741,25 +742,40 @@ function renderProgress() {
 }
 
 function renderMissionList() {
-  els.missionList.innerHTML = scenarios
-    .map((scenario) => {
+  els.missionList.innerHTML = `
+    <div class="learning-path" aria-label="AI PM 能力成长路径">
+      <div class="path-intro">
+        <span>能力地图</span>
+        <strong>${getCompleted().length} / ${scenarios.length} 个单元完成</strong>
+      </div>
+      ${scenarios.map((scenario, unitIndex) => {
       const done = state.progress[scenario.id];
       const selected = scenario.id === state.selectedScenarioId ? " is-selected" : "";
-      const genre = scenario.genre ? `<span class="mission-genre">${escapeHtml(scenario.genre)}</span>` : "";
+      const stackKeys = (scenarioStackMap[scenario.id] || []).slice(0, 2);
+      const side = unitIndex % 2 === 0 ? " is-left" : " is-right";
       return `
-        <button class="mission-card${selected}" data-scenario-id="${scenario.id}">
-          <p class="eyebrow">${escapeHtml(scenario.level)}</p>
-          <h3>${escapeHtml(scenario.title)}</h3>
-          <p>${escapeHtml(scenario.summary)}</p>
-          ${genre}
-          <div class="card-meta">
-            <span>${scenario.xp} XP</span>
-            <span>${done ? `已完成 ${escapeHtml(done.score)}` : scenario.totalStages ? `${scenario.totalStages} 幕剧情` : "待挑战"}</span>
+        <section class="path-unit">
+          <div class="path-unit-label">单元 ${unitIndex + 1}</div>
+          <button class="path-node mission-node${selected}${done ? " is-complete" : ""}${side}" data-scenario-id="${scenario.id}">
+            <span class="path-node-icon">${done ? "✓" : unitIndex + 1}</span>
+            <span class="path-node-copy">
+              <strong>${escapeHtml(scenario.title)}</strong>
+              <small>${done ? `已完成 · ${escapeHtml(done.score)} 分` : `${scenario.totalStages || 1} 幕 · ${scenario.xp} XP`}</small>
+            </span>
+          </button>
+          <div class="path-skill-row">
+            ${stackKeys.map((key, skillIndex) => {
+              const item = stackItems.find((candidate) => candidate.key === key);
+              if (!item) return "";
+              return `<button class="path-skill${skillIndex % 2 ? " is-right" : " is-left"}" type="button" data-path-stack-key="${key}" data-path-scenario-id="${scenario.id}">
+                <span aria-hidden="true">◆</span>${escapeHtml(item.title)}
+              </button>`;
+            }).join("")}
           </div>
-        </button>
+        </section>
       `;
-    })
-    .join("");
+    }).join("")}
+    </div>`;
 }
 
 function renderScenario() {
@@ -798,6 +814,12 @@ function renderStoryStage(scenario, completed) {
   const consequenceShown = state.currentStageConsequenceShown && choice;
   const isLastStage = stage.index >= scenario.stages.length - 1;
   const isFinalChoice = choice && choice.isFinal;
+  const isReflectionStage = isLastStage && stage.choices.length === 1 && stage.choices[0].isFinal;
+
+  if (isReflectionStage && !choice) {
+    state.stageChoices[`${scenario.id}-s${stage.index}`] = stage.choices[0].id;
+  }
+  const activeChoice = getSelectedChoiceForStage(stage);
 
   if (els.stageIndicator) {
     const dots = Array.from({ length: total }, (_, i) => {
@@ -838,6 +860,7 @@ function renderStoryStage(scenario, completed) {
     )
     .join("");
 
+  els.choiceGrid.hidden = isReflectionStage;
   els.choiceGrid.innerHTML = stage.choices
     .map((c, idx) => {
       const selected = choice && c.id === choice.id ? " is-selected" : "";
@@ -853,11 +876,11 @@ function renderStoryStage(scenario, completed) {
     .join("");
 
   if (els.consequenceBox) {
-    if (consequenceShown && choice && choice.consequence) {
+    if (consequenceShown && activeChoice && activeChoice.consequence) {
       els.consequenceBox.hidden = false;
       els.consequenceBox.innerHTML = `
         <div class="consequence-head">📜 剧情分支结果</div>
-        <div class="consequence-body">${escapeHtml(choice.consequence)}</div>
+        <div class="consequence-body">${escapeHtml(activeChoice.consequence)}</div>
       `;
     } else {
       els.consequenceBox.hidden = true;
@@ -869,9 +892,6 @@ function renderStoryStage(scenario, completed) {
     if (consequenceShown && !isLastStage) {
       els.nextStageButton.hidden = false;
       els.nextStageButton.textContent = `进入下一幕 →  ${stage.index + 2 < total ? scenario.stages[stage.index + 1].actLabel.split(" · ")[1] || "" : ""}`;
-    } else if (consequenceShown && (isLastStage || isFinalChoice)) {
-      els.nextStageButton.hidden = false;
-      els.nextStageButton.textContent = "📝 写复盘总结 · 拿最终批改";
     } else {
       els.nextStageButton.hidden = true;
     }
@@ -879,13 +899,13 @@ function renderStoryStage(scenario, completed) {
 
   if (els.confirmChoiceButton) {
     const choiceIndex = choice ? stage.choices.findIndex((item) => item.id === choice.id) : -1;
-    els.confirmChoiceButton.hidden = !choice || consequenceShown;
+    els.confirmChoiceButton.hidden = isReflectionStage || !choice || consequenceShown;
     els.confirmChoiceButton.textContent = choiceIndex >= 0
       ? `确认选择 ${String.fromCharCode(65 + choiceIndex)} · 看剧情结果`
       : "确认这个决定";
   }
 
-  const showScoreButton = (isLastStage || isFinalChoice) && consequenceShown;
+  const showScoreButton = isReflectionStage || ((isLastStage || isFinalChoice) && consequenceShown);
   if (els.scoreButton) {
     els.scoreButton.hidden = !showScoreButton;
   }
@@ -912,6 +932,7 @@ function renderClassicScenario(scenario, completed) {
   if (els.consequenceBox) els.consequenceBox.hidden = true;
   if (els.nextStageButton) els.nextStageButton.hidden = true;
   if (els.confirmChoiceButton) els.confirmChoiceButton.hidden = true;
+  els.choiceGrid.hidden = false;
 
   els.missionContext.textContent = scenario.context;
   els.missionQuestion.textContent = scenario.question;
@@ -1041,11 +1062,12 @@ function renderStack() {
     .map(
       (item) => {
         const isRelated = currentKeys.includes(item.key);
+        const isFocused = state.selectedStackKey === item.key;
         const relatedScenarios = scenarios.filter((scenario) =>
           (scenarioStackMap[scenario.id] || []).includes(item.key)
         );
         return `
-      <article class="stack-card${isRelated ? " is-related" : ""}" data-stack-key="${item.key}">
+      <article class="stack-card${isRelated ? " is-related" : ""}${isFocused ? " is-focused" : ""}" data-stack-key="${item.key}">
         ${isRelated ? '<span class="stack-current-badge">当前关卡重点</span>' : ""}
         <h4>${escapeHtml(item.title)}</h4>
         <p>${escapeHtml(item.text)}</p>
@@ -1303,7 +1325,8 @@ function submitScore() {
   if (isStoryScenario(scenario)) {
     const stage = getCurrentStage(scenario);
     const choice = getSelectedChoiceForStage(stage);
-    const canSubmit = choice && state.currentStageConsequenceShown &&
+    const isReflectionStage = stage.index >= scenario.stages.length - 1 && stage.choices.length === 1 && stage.choices[0].isFinal;
+    const canSubmit = choice && (isReflectionStage || state.currentStageConsequenceShown) &&
       (stage.index >= scenario.stages.length - 1 || choice.isFinal);
     if (!canSubmit) {
       showToast("请先完成当前剧情选择，走到终局后再拿完整批改～");
@@ -1326,6 +1349,7 @@ function submitScore() {
 
   const review = scoreText(answer, scenario);
   const xp = review.score >= 85 ? scenario.xp : review.score >= 70 ? Math.round(scenario.xp * 0.8) : Math.round(scenario.xp * 0.6);
+  const latestOutcome = [...state.stageHistory].reverse().find((item) => item?.consequence);
 
   state.progress[scenario.id] = {
     scenarioId: scenario.id,
@@ -1333,6 +1357,8 @@ function submitScore() {
     answer,
     choiceId: state.selectedChoiceId,
     choiceTitle: finalChoiceTitle,
+    decisionTitle: latestOutcome?.choiceTitle || "",
+    consequence: latestOutcome?.consequence || "",
     score: review.score,
     xp,
     review,
@@ -1547,59 +1573,41 @@ async function sendQuestion(dryRun = false) {
   return result;
 }
 
-function buildShareCardHtml({ type, scenario, choice, answer, review, xp }) {
-  const bg = type === "score"
-    ? "linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#1f7a5c 100%)"
-    : "linear-gradient(135deg,#18211f 0%,#1f7a5c 50%,#2f6f9f 100%)";
+function buildShareCardHtml({ type, scenario, choice, answer, consequence, review, xp, stageIndex, totalStages }) {
   const score = review?.score || 0;
-  const headline = score >= 85 ? "判断力很强" : score >= 70 ? "方向正确" : "持续练习";
-  const dimensions = review?.dimensions || [];
-
-  const isDark = state.theme === "dark";
-  const cardBg = isDark ? "#1a1a2e" : "#fffdf8";
-  const textColor = isDark ? "#fffdf8" : "#18211f";
-  const subTextColor = isDark ? "#a0a8b3" : "#65716d";
+  const headline = score >= 85 ? "判断力很强" : score >= 70 ? "方向正确" : score >= 55 ? "继续打磨" : "完成挑战";
+  const cleanChoice = choice && !/写.+总结/.test(choice) ? choice : "";
+  const safeScenarioTitle = escapeHtml(scenario?.title || "");
+  const safeQuestion = escapeHtml(scenario?.question || "");
+  const safeChoice = escapeHtml(cleanChoice);
+  const safeAnswer = escapeHtml(answer || "");
+  const safeConsequence = escapeHtml(consequence || "");
+  const safeFeedback = escapeHtml(review?.feedback || "");
+  const progressLabel = stageIndex && totalStages ? `第 ${stageIndex} / ${totalStages} 幕` : "关卡完成";
 
   return `
-<div style="width:480px;padding:36px;background:${cardBg};color:${textColor};font-family:-apple-system,'PingFang SC',sans-serif;box-sizing:border-box;border-radius:20px;box-shadow:0 30px 80px rgba(0,0,0,.25);">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
-    <div style="display:flex;align-items:center;gap:12px;">
-      <div style="width:44px;height:44px;border-radius:12px;background:${bg};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;">AI</div>
-      <div>
-        <div style="font-size:11px;font-weight:800;color:#1f7a5c;letter-spacing:1px;text-transform:uppercase;">AI PM Sandbox</div>
-        <div style="font-size:18px;font-weight:900;">${type === "score" ? "闯关成绩单" : "我的产品判断"}</div>
-      </div>
-    </div>
-    ${type === "score" ? `<div style="text-align:right;"><div style="font-size:56px;font-weight:900;line-height:1;color:#1f7a5c;">${score}</div><div style="font-size:12px;color:${subTextColor};">/ 100 分 · ${xp || 0} XP</div></div>` : ""}
+<div style="width:460px;max-width:100%;padding:22px;background:#fffdf8;color:#18211f;font-family:-apple-system,'PingFang SC',sans-serif;box-sizing:border-box;border-radius:22px;box-shadow:0 24px 60px rgba(24,33,31,.22);">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:${type === "score" ? "10px" : "18px"};">
+    <div><div style="font-size:11px;font-weight:900;color:#1f7a5c;letter-spacing:1.2px;">AI PM SANDBOX</div><div style="font-size:22px;font-weight:950;margin-top:4px;">${type === "score" ? headline : "这一步，我押对了吗？"}</div></div>
+    ${type === "score" ? `<div style="min-width:92px;padding:10px 12px;border-radius:16px;background:#18211f;color:#fff;text-align:center;"><strong style="display:block;font-size:34px;line-height:1;">${score}</strong><span style="font-size:11px;opacity:.72;">${xp || 0} XP</span></div>` : `<div style="padding:7px 11px;border-radius:999px;background:#e8f4ef;color:#176b50;font-size:11px;font-weight:900;white-space:nowrap;">${progressLabel}</div>`}
   </div>
-  <div style="padding:18px;border-radius:12px;background:rgba(31,122,92,0.08);border:1px solid rgba(31,122,92,0.2);margin-bottom:20px;">
-    <div style="font-size:11px;color:#1f7a5c;font-weight:800;margin-bottom:6px;">${scenario?.level || ""} · 决策场景</div>
-    <div style="font-size:20px;font-weight:900;line-height:1.4;margin-bottom:8px;">${scenario?.title || ""}</div>
-    <div style="font-size:13px;color:${subTextColor};line-height:1.6;">${scenario?.question || ""}</div>
+  <div style="padding:${type === "score" ? "11px 14px" : "16px 18px"};border-radius:16px;background:#f1f5ed;border:1px solid #c7ddd3;margin-bottom:${type === "score" ? "9px" : "14px"};">
+    <div style="font-size:17px;font-weight:900;line-height:1.4;">${safeScenarioTitle}</div>
+    ${type === "decision" ? `<div style="font-size:12px;color:#65716d;line-height:1.55;margin-top:5px;">${safeQuestion}</div>` : ""}
   </div>
-  ${choice ? `<div style="display:inline-block;padding:8px 14px;border-radius:999px;background:rgba(47,111,159,0.12);color:#2f6f9f;font-size:13px;font-weight:800;margin-bottom:16px;">✓ 我的方案：${choice}</div>` : ""}
-  ${answer ? `<div style="font-size:14px;line-height:1.75;color:${textColor};opacity:.9;margin-bottom:18px;white-space:pre-wrap;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden;">${escapeHtml(answer)}</div>` : ""}
+  ${safeChoice ? `<div style="margin-bottom:${type === "score" ? "8px" : "12px"};"><div style="font-size:10px;font-weight:900;color:#7b8581;letter-spacing:.8px;margin-bottom:4px;">我的决定</div><div style="padding:${type === "score" ? "8px 12px" : "11px 14px"};border-radius:12px;background:#e7eff5;color:#246b9d;font-size:14px;font-weight:900;">${safeChoice}</div></div>` : ""}
+  ${safeConsequence ? `<div style="margin-bottom:8px;"><div style="font-size:10px;font-weight:900;color:#7b8581;letter-spacing:.8px;margin-bottom:4px;">剧情结果</div><div style="padding:${type === "score" ? "9px 12px" : "11px 13px"};border-radius:12px;background:#fff2d7;border-left:4px solid #d39a20;font-size:13px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:${type === "score" ? 2 : 3};-webkit-box-orient:vertical;overflow:hidden;">${safeConsequence}</div></div>` : ""}
+  ${safeAnswer && type === "decision" ? `<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:900;color:#7b8581;letter-spacing:.8px;margin-bottom:5px;">我的判断</div><div style="font-size:12px;line-height:1.55;color:#4f5c58;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap;">${safeAnswer}</div></div>` : ""}
   ${
-    type === "score" && dimensions.length
-      ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
-        ${dimensions
-          .slice(0, 4)
-          .map(
-            (d) => `<div style="padding:8px 12px;border-radius:8px;background:rgba(0,0,0,0.04);display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:12px;color:${subTextColor};">${d.name}</span>
-              <strong style="font-size:13px;color:#1f7a5c;">${d.value}${"/20"}</strong>
-            </div>`
-          )
-          .join("")}
-      </div>
-      <div style="padding:12px 16px;border-radius:10px;background:linear-gradient(90deg,rgba(31,122,92,0.12),rgba(47,111,159,0.12));border-left:3px solid #c9992d;">
-        <div style="font-size:11px;font-weight:800;color:#7a5b14;margin-bottom:4px;">💡 评价 · ${headline}</div>
-        <div style="font-size:13px;line-height:1.6;color:${textColor};opacity:.85;">${review?.feedback || ""}</div>
+    type === "score"
+      ? `<div style="padding:10px 12px;border-radius:11px;background:#e8f4ef;border-left:4px solid #1f7a5c;">
+        <div style="font-size:10px;font-weight:900;color:#176b50;margin-bottom:3px;">本关收获</div>
+        <div style="font-size:12px;line-height:1.5;color:#35423e;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${safeFeedback}</div>
       </div>`
       : ""
   }
-  <div style="margin-top:24px;padding-top:18px;border-top:1px dashed rgba(0,0,0,0.1);display:flex;justify-content:space-between;align-items:center;">
-    <div style="font-size:11px;color:${subTextColor};">@ 判断力训练场 · ai-pm-sandbox</div>
+  <div style="margin-top:${type === "score" ? "9px" : "16px"};padding-top:${type === "score" ? "8px" : "12px"};border-top:1px dashed #d9d5cb;display:flex;justify-content:space-between;align-items:center;color:#87918d;font-size:10px;">
+    <span>AI PM 判断力训练</span><span>选择 → 后果 → 复盘</span>
   </div>
 </div>`;
 }
@@ -1662,17 +1670,23 @@ function openShareDialog(mode = "score") {
     html = buildShareCardHtml({
       type: "score",
       scenario: cardScenario,
-      choice: choice?.title || completed.choiceTitle,
+      choice: completed.decisionTitle || choice?.title || "",
       answer: completed.answer,
       review: completed.review,
-      xp: completed.xp
+      xp: completed.xp,
+      consequence: completed.consequence || choice?.consequence || "",
+      stageIndex: currentStage?.index + 1,
+      totalStages: getTotalStages(scenario)
     });
   } else {
     html = buildShareCardHtml({
       type: "decision",
       scenario: cardScenario,
       choice: choice?.title || "",
-      answer: els.answerInput.value.trim() || "(还没写答案呢，先写一句判断吧～)"
+      answer: els.answerInput.value.trim(),
+      consequence: choice?.consequence || "",
+      stageIndex: currentStage?.index + 1,
+      totalStages: getTotalStages(scenario)
     });
   }
 
@@ -1833,9 +1847,21 @@ function bindEvents() {
   });
 
   els.missionList.addEventListener("click", (event) => {
+    const skill = event.target.closest("[data-path-stack-key]");
+    if (skill) {
+      state.selectedScenarioId = skill.dataset.pathScenarioId;
+      state.selectedStackKey = skill.dataset.pathStackKey;
+      resetStageProgress();
+      renderScenario();
+      renderStack();
+      setView("stack");
+      requestAnimationFrame(() => document.querySelector(".stack-card.is-focused")?.scrollIntoView({ behavior: "smooth", block: "center" }));
+      return;
+    }
     const card = event.target.closest("[data-scenario-id]");
     if (!card) return;
     state.selectedScenarioId = card.dataset.scenarioId;
+    state.selectedStackKey = null;
     resetStageProgress();
     renderScenario();
   });

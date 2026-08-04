@@ -1,7 +1,7 @@
 {
   "name": "ai-pm-sandbox",
   "version": "0.2.0",
-  "description": "一个游戏化的 AI 产品经理训练沙盒——通过真实场景闯关练判断力，支持把题目发到团队 IM 群里讨论。",
+  "description": "一个游戏化的 AI 产品经理训练沙盒——沿能力路径完成真实场景决策，也可把题目推送到自己的 IM 机器人随时练习。",
   "type": "module",
   "main": "server.js",
   "bin": {
