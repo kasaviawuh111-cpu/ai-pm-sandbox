@@ -80,6 +80,7 @@
                   <div class="scenario-meta-row">
                     <span class="scenario-genre" id="scenarioGenre">职场悬疑</span>
                     <span class="scenario-meta" id="scenarioMeta">4 幕剧情 · 180 XP</span>
+                    <button class="scenario-stack-link" id="scenarioStackLink" type="button">查看本关技术栈 →</button>
                   </div>
                 </div>
                 <div class="panel-header-actions">
@@ -165,9 +166,13 @@
         </section>
 
         <section id="stackView" class="view">
-          <div class="section-intro">
-            <p class="eyebrow">AI PM 技术栈地图</p>
-            <h3>你不用变成工程师，但要听得懂关键取舍</h3>
+          <div class="section-intro section-intro-row">
+            <div>
+              <p class="eyebrow">AI PM 技术栈地图</p>
+              <h3>当前关卡：<span id="stackScenarioTitle"></span></h3>
+              <p class="stack-context" id="stackScenarioContext"></p>
+            </div>
+            <button class="secondary-action" id="backToMissionButton" type="button">← 返回当前关卡</button>
           </div>
           <div id="stackGrid" class="stack-grid"></div>
         </section>

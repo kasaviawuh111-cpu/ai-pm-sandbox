@@ -471,51 +471,66 @@ const scenarios = [
 
 const stackItems = [
   {
+    key: "model-boundary",
     title: "模型与能力边界",
     text: "理解通用模型、专用模型、多模态、上下文长度、工具调用的差异。",
     learn: ["会问：这个任务需要推理、检索还是结构化抽取？", "会判断：质量、速度、成本哪个最敏感？"]
   },
   {
+    key: "prompt-design",
     title: "Prompt 与任务设计",
     text: "把模糊需求变成可评测的输入输出合同，而不只是写漂亮提示词。",
     learn: ["定义角色、约束、样例、拒答条件", "把提示词版本纳入实验管理"]
   },
   {
+    key: "rag",
     title: "RAG 与知识库",
     text: "知道切分、召回、重排、引用、更新频率如何影响答案可信度。",
     learn: ["设计可追溯答案", "区分知识缺失和模型幻觉"]
   },
   {
+    key: "evals",
     title: "Evals 评测体系",
     text: "用黄金集、线上反馈和人工复核决定是否能上线，而不是凭 demo 感觉。",
     learn: ["准确率、召回率、引用正确率", "红队测试和回归测试"]
   },
   {
+    key: "agent-tools",
     title: "Agent 与工具调用",
     text: "把 AI 动作分成建议、草稿、确认、自动执行，明确权限和回滚。",
     learn: ["动作风险分级", "审计日志、重试、超时和幂等"]
   },
   {
+    key: "data-safety",
     title: "数据、隐私与安全",
     text: "理解训练数据、用户数据、日志、脱敏、权限、合规边界。",
     learn: ["最小化采集", "敏感信息过滤和访问控制"]
   },
   {
+    key: "cost-latency",
     title: "成本与延迟",
     text: "能和工程一起讨论缓存、模型路由、限额、流式输出和容量预估。",
     learn: ["单位经济模型", "按任务难度选择模型"]
   },
   {
+    key: "operations",
     title: "上线与运营闭环",
     text: "把 AI 功能做成可监控、可回滚、可迭代的系统。",
     learn: ["灰度、监控、告警", "用户反馈到数据飞轮"]
   },
   {
+    key: "im-collaboration",
     title: "IM 协作场景",
     text: "把问题、方案和复盘推到团队群，让产品判断从个人作业变成团队讨论。",
     learn: ["群机器人 webhook", "消息模板、@ 人、审批确认"]
   }
 ];
+
+const scenarioStackMap = {
+  "rag-mystery": ["model-boundary", "rag", "evals", "operations"],
+  "agent-storm": ["model-boundary", "agent-tools", "data-safety", "operations"],
+  "hallucination-maze": ["model-boundary", "rag", "evals", "data-safety"]
+};
 
 const state = {
   selectedScenarioId: scenarios[0].id,
@@ -541,7 +556,8 @@ function initEls() {
     "coachButtons", "choiceGrid", "consequenceBox", "nextStageButton",
     "scorePanel", "scoreHeadline", "scoreValue",
     "scoreBreakdown", "feedbackText", "xpLabel", "xpBar", "rankLabel", "rankHint",
-    "stackGrid", "portfolioList", "dispatchForm", "senderName", "channelSelect",
+    "stackGrid", "stackScenarioTitle", "stackScenarioContext", "backToMissionButton",
+    "scenarioStackLink", "portfolioList", "dispatchForm", "senderName", "channelSelect",
     "webhookFields", "dispatchNote", "includeRubric", "rememberConfig",
     "previewDialog", "previewContent", "toast", "themeToggle", "helpButton",
     "helpDialog", "closeHelpButton", "closePreviewButton", "resetButton",
@@ -993,17 +1009,32 @@ function getAllChoiceExplanations(scenario = getScenario()) {
 }
 
 function renderStack() {
+  const currentScenario = getScenario();
+  const currentKeys = scenarioStackMap[currentScenario.id] || [];
+  els.stackScenarioTitle.textContent = currentScenario.title;
+  els.stackScenarioContext.textContent = `本关重点训练 ${currentKeys.length} 项能力。高亮卡片就是当前剧情里的关键知识点。`;
   els.stackGrid.innerHTML = stackItems
     .map(
-      (item) => `
-      <article class="stack-card">
+      (item) => {
+        const isRelated = currentKeys.includes(item.key);
+        const relatedScenarios = scenarios.filter((scenario) =>
+          (scenarioStackMap[scenario.id] || []).includes(item.key)
+        );
+        return `
+      <article class="stack-card${isRelated ? " is-related" : ""}" data-stack-key="${item.key}">
+        ${isRelated ? '<span class="stack-current-badge">当前关卡重点</span>' : ""}
         <h4>${escapeHtml(item.title)}</h4>
         <p>${escapeHtml(item.text)}</p>
         <ul>
           ${item.learn.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}
         </ul>
+        <div class="stack-missions">
+          <span>关联关卡</span>
+          ${relatedScenarios.map((scenario) => `<button type="button" data-stack-scenario-id="${scenario.id}"${scenario.id === currentScenario.id ? ' class="is-current"' : ""}>${escapeHtml(scenario.title.split("：")[0])}</button>`).join("")}
+        </div>
       </article>
-    `
+    `;
+      }
     )
     .join("");
 }
@@ -1545,7 +1576,6 @@ function buildShareCardHtml({ type, scenario, choice, answer, review, xp }) {
   }
   <div style="margin-top:24px;padding-top:18px;border-top:1px dashed rgba(0,0,0,0.1);display:flex;justify-content:space-between;align-items:center;">
     <div style="font-size:11px;color:${subTextColor};">@ 判断力训练场 · ai-pm-sandbox</div>
-    <div style="font-size:11px;font-weight:800;color:#1f7a5c;">susu 出品 ✨</div>
   </div>
 </div>`;
 }
@@ -1865,6 +1895,22 @@ function bindEvents() {
 
   els.prevMission.addEventListener("click", () => gotoScenario(-1));
   els.nextMission.addEventListener("click", () => gotoScenario(1));
+
+  els.scenarioStackLink.addEventListener("click", () => {
+    renderStack();
+    setView("stack");
+  });
+  els.backToMissionButton.addEventListener("click", () => setView("missions"));
+  els.stackGrid.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-stack-scenario-id]");
+    if (!button) return;
+    state.selectedScenarioId = button.dataset.stackScenarioId;
+    resetStageProgress();
+    renderScenario();
+    renderStack();
+    setView("missions");
+    showToast(`已切换到关联关卡：${getScenario().title}`);
+  });
 
   els.exportMdButton.addEventListener("click", () => exportPortfolio("markdown"));
   els.exportHtmlButton.addEventListener("click", () => exportPortfolio("html"));
