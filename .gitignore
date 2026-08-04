@@ -1,0 +1,39 @@
+# 依赖
+node_modules/
+
+# 环境变量 & 密钥
+.env
+.env.*
+!.env.example
+
+# 日志
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+*.swp
+*.swo
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 导出的作品集
+exports/
+portfolio-*.md
+portfolio-*.html
+portfolio-*.png
