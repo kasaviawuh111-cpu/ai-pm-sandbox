@@ -45,7 +45,7 @@ const scenarios = [
             text: "直接把所有重复问题切给 AI，客户看不到人工入口。先降本再说，出了问题客服补。",
             score: 22,
             stageEffect: "ceoHappy: +2, ccoTrust: -3, riskLevel: high",
-            consequence: "CEO 当场夸你「有执行力」。林姐冷笑一声，在笔记本上写了四个字：「出了事找你」。两周后，AI 如约上线。",
+            consequence: "CEO 当场夸你「有执行力」。林姐冷笑一声，在笔记本上写了五个字：「出了事找你」。两周后，AI 如约上线。",
             whyThisScore: "这不是产品决策，是赌运气。知识库质量参差、没有评测、没有边界——只要 AI 把一个高价值客户的续费问题答错一次，省下来的 300 万工资，一个客户流失就赔光了。"
           },
           {
