@@ -75,6 +75,10 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 html,
 body {
   margin: 0;
@@ -1754,6 +1758,16 @@ kbd {
 }
 
 @media (max-width: 760px) {
+  .sidebar {
+    padding: 16px;
+    gap: 14px;
+  }
+
+  .project-brief,
+  .sidebar-note {
+    display: none;
+  }
+
   .main {
     padding: 20px 16px 60px;
   }
@@ -1774,14 +1788,14 @@ kbd {
 
   .nav-list {
     flex: 1 1 100%;
-    flex-direction: row;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .nav-button {
-    flex: 1;
     text-align: center;
-    min-width: 110px;
+    min-width: 0;
+    padding: 10px 8px;
   }
 
   .score-summary {

@@ -524,6 +524,7 @@ const state = {
   stageChoices: {},
   stageHistory: [],
   currentStageConsequenceShown: false,
+  draftAnswers: {},
   progress: loadJson("ai-pm-sandbox-progress", {}),
   config: loadJson("ai-pm-sandbox-config", {}),
   theme: loadJson("ai-pm-sandbox-theme", "light")
@@ -663,8 +664,7 @@ function getSelectedChoiceForStage(stage) {
 function getSelectedChoice(scenario = getScenario()) {
   if (!scenario) return null;
   if (isStoryScenario(scenario)) {
-    const finalStage = scenario.stages[scenario.stages.length - 1];
-    return getSelectedChoiceForStage(finalStage) || scenario.stages[0].choices[0];
+    return getSelectedChoiceForStage(getCurrentStage(scenario));
   }
   const c = scenario.choices && scenario.choices.find((item) => item.id === state.selectedChoiceId);
   return c || (scenario.choices && scenario.choices[0]);
@@ -810,7 +810,7 @@ function renderStoryStage(scenario, completed) {
   els.constraints.innerHTML = (stage.constraints || scenario.constraints || [])
     .map((item) => `<span class="constraint">${escapeHtml(item)}</span>`).join("");
 
-  els.answerInput.value = completed?.answer || "";
+  els.answerInput.value = completed?.answer ?? state.draftAnswers[scenario.id] ?? "";
   updateAnswerCount();
   els.coachButtons.innerHTML = getCoachPrompts(scenario)
     .map(
@@ -890,7 +890,7 @@ function renderClassicScenario(scenario, completed) {
 
   els.missionContext.textContent = scenario.context;
   els.missionQuestion.textContent = scenario.question;
-  els.answerInput.value = completed?.answer || "";
+  els.answerInput.value = completed?.answer ?? state.draftAnswers[scenario.id] ?? "";
   updateAnswerCount();
   els.constraints.innerHTML = scenario.constraints.map((item) => `<span class="constraint">${escapeHtml(item)}</span>`).join("");
   els.coachButtons.innerHTML = getCoachPrompts(scenario)
@@ -1245,6 +1245,16 @@ function showScore(review, animate = true) {
 
 function submitScore() {
   const scenario = getScenario();
+  if (isStoryScenario(scenario)) {
+    const stage = getCurrentStage(scenario);
+    const choice = getSelectedChoiceForStage(stage);
+    const canSubmit = choice && state.currentStageConsequenceShown &&
+      (stage.index >= scenario.stages.length - 1 || choice.isFinal);
+    if (!canSubmit) {
+      showToast("请先完成当前剧情选择，走到终局后再拿完整批改～");
+      return;
+    }
+  }
   let answer = els.answerInput.value.trim();
   const finalChoiceTitle = isStoryScenario(scenario)
     ? `剧情闯关：${getTotalStages(scenario)} 幕完成`
@@ -1275,6 +1285,7 @@ function submitScore() {
   };
 
   saveProgress();
+  delete state.draftAnswers[scenario.id];
   renderProgress();
   renderMissionList();
   renderPortfolio();
@@ -1474,6 +1485,7 @@ async function sendQuestion(dryRun = false) {
 
   if (els.rememberConfig.checked && !dryRun) {
     state.config[payload.channel] = payload.config;
+    state.config.senderName = payload.user.name;
     saveJson("ai-pm-sandbox-config", state.config);
   }
 
@@ -1581,6 +1593,11 @@ function openShareDialog(mode = "score") {
   const scenario = getScenario();
   const completed = state.progress[scenario.id];
   const choice = getSelectedChoice(scenario);
+  const currentStage = getCurrentStage(scenario);
+  const cardScenario = {
+    ...scenario,
+    question: currentStage?.question || scenario.question || ""
+  };
 
   let html;
   if (mode === "score") {
@@ -1590,8 +1607,8 @@ function openShareDialog(mode = "score") {
     }
     html = buildShareCardHtml({
       type: "score",
-      scenario,
-      choice: choice.title,
+      scenario: cardScenario,
+      choice: choice?.title || completed.choiceTitle,
       answer: completed.answer,
       review: completed.review,
       xp: completed.xp
@@ -1599,8 +1616,8 @@ function openShareDialog(mode = "score") {
   } else {
     html = buildShareCardHtml({
       type: "decision",
-      scenario,
-      choice: choice.title,
+      scenario: cardScenario,
+      choice: choice?.title || "",
       answer: els.answerInput.value.trim() || "(还没写答案呢，先写一句判断吧～)"
     });
   }
@@ -1732,7 +1749,9 @@ function bindKeyboard() {
           showToast(`已选 ${String.fromCharCode(65 + idx)}：${choice.title}`);
         }
       } else {
-        const idx = Number(e.key) - 1;
+        const idx = ["1", "2", "3"].includes(e.key)
+          ? Number(e.key) - 1
+          : e.key.toLowerCase().charCodeAt(0) - 97;
         if (scenario.choices[idx]) {
           state.selectedChoiceId = scenario.choices[idx].id;
           renderScenario();
@@ -1791,7 +1810,10 @@ function bindEvents() {
     }
   });
 
-  els.answerInput.addEventListener("input", updateAnswerCount);
+  els.answerInput.addEventListener("input", () => {
+    state.draftAnswers[state.selectedScenarioId] = els.answerInput.value;
+    updateAnswerCount();
+  });
 
   els.voiceButton?.addEventListener("click", toggleVoiceInput);
 

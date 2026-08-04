@@ -7,7 +7,7 @@
   <a href="#-特性"><strong>特性</strong></a> ·
   <a href="#-快速开始"><strong>快速开始</strong></a> ·
   <a href="#-想分享给朋友玩不用-clone-公网部署"><strong>分享给朋友玩</strong></a> ·
-  <a href="#-功能截图"><strong>截图</strong></a> ·
+  <a href="#-界面一览"><strong>界面一览</strong></a> ·
   <a href="#-微信飞书-个人刷题配置"><strong>微信/飞书刷题</strong></a> ·
   <a href="#-项目结构"><strong>结构</strong></a> ·
   <a href="#-贡献指南"><strong>贡献</strong></a>
@@ -79,7 +79,7 @@ npx ai-pm-sandbox
 npx --yes github:kasaviawuh111-cpu/ai-pm-sandbox
 ```
 
-浏览器自动打开（或手动访问）：**http://localhost:4173**
+启动后手动访问：**http://localhost:4173**
 
 > ℹ️ 你自己电脑上运行，就是访问你自己的 localhost；朋友要一起玩请用下方「公网部署」。
 

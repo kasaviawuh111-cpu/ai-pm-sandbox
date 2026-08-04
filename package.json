@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
+    "test": "node --test test/server.test.js",
     "docker:build": "docker build -t ai-pm-sandbox .",
     "docker:run": "docker run -p 4173:4173 ai-pm-sandbox"
   },
@@ -30,13 +31,13 @@
   ],
   "author": "susu <kasaviawuh111@gmail.com>",
   "license": "MIT",
-  "homepage": "https://github.com/susu/ai-pm-sandbox",
+  "homepage": "https://github.com/kasaviawuh111-cpu/ai-pm-sandbox",
   "repository": {
     "type": "git",
-    "url": "https://github.com/susu/ai-pm-sandbox.git"
+    "url": "https://github.com/kasaviawuh111-cpu/ai-pm-sandbox.git"
   },
   "bugs": {
-    "url": "https://github.com/susu/ai-pm-sandbox/issues"
+    "url": "https://github.com/kasaviawuh111-cpu/ai-pm-sandbox/issues"
   },
   "dependencies": {},
   "devDependencies": {}

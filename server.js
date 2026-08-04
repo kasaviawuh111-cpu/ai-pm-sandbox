@@ -30,6 +30,15 @@ function sendJson(res, statusCode, body) {
   res.end(payload);
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function readRequestBody(req) {
   return new Promise((resolve, reject) => {
     let body = "";
@@ -431,7 +440,7 @@ async function handleExportPortfolio(req, res) {
 </style>
 </head>
 <body>
-${markdown
+${escapeHtml(markdown)
   .replace(/^### (.*$)/gm, "<h3>$1</h3>")
   .replace(/^## (.*$)/gm, "<h2>$1</h2>")
   .replace(/^# (.*$)/gm, "<h1>$1</h1>")
@@ -472,11 +481,19 @@ ${markdown
 
 async function serveStatic(req, res) {
   const url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
-  let pathname = decodeURIComponent(url.pathname);
+  let pathname;
+  try {
+    pathname = decodeURIComponent(url.pathname);
+  } catch {
+    res.writeHead(400, { "Content-Type": "text/plain; charset=utf-8" });
+    res.end("Bad request");
+    return;
+  }
   if (pathname === "/") pathname = "/index.html";
 
-  const filePath = path.normalize(path.join(publicDir, pathname));
-  if (!filePath.startsWith(publicDir)) {
+  const filePath = path.resolve(publicDir, `.${pathname}`);
+  const relativePath = path.relative(publicDir, filePath);
+  if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
     res.writeHead(403);
     res.end("Forbidden");
     return;
@@ -494,25 +511,26 @@ async function serveStatic(req, res) {
     });
     res.end(content);
   } catch {
-    const fallback = await fs.readFile(path.join(publicDir, "index.html"));
-    res.writeHead(200, {
-      "Content-Type": "text/html; charset=utf-8",
+    res.writeHead(404, {
+      "Content-Type": "text/plain; charset=utf-8",
       "Cache-Control": "no-store"
     });
-    res.end(fallback);
+    res.end("Not found");
   }
 }
 
 const server = http.createServer(async (req, res) => {
-  if (req.method === "GET" && req.url === "/api/health") {
+  const pathname = new URL(req.url, `http://${req.headers.host || "localhost"}`).pathname;
+
+  if (req.method === "GET" && pathname === "/api/health") {
     return sendJson(res, 200, { ok: true, name: "ai-pm-sandbox", version: "0.2.0" });
   }
 
-  if (req.method === "POST" && req.url === "/api/send-question") {
+  if (req.method === "POST" && pathname === "/api/send-question") {
     return handleSendQuestion(req, res);
   }
 
-  if (req.method === "POST" && req.url === "/api/export-portfolio") {
+  if (req.method === "POST" && pathname === "/api/export-portfolio") {
     return handleExportPortfolio(req, res);
   }
 
@@ -523,6 +541,10 @@ const server = http.createServer(async (req, res) => {
   sendJson(res, 405, { ok: false, error: "Method not allowed" });
 });
 
-server.listen(port, host, () => {
-  console.log(`AI PM Sandbox running at http://${host}:${port}`);
-});
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+  server.listen(port, host, () => {
+    console.log(`AI PM Sandbox running at http://${host}:${server.address().port}`);
+  });
+}
+
+export { buildPortfolioMarkdown, handleExportPortfolio, server };

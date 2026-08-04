@@ -3,7 +3,7 @@ FROM node:20-alpine
 LABEL org.opencontainers.image.title="AI PM Sandbox" \
       org.opencontainers.image.description="AI 产品经理判断力训练场" \
       org.opencontainers.image.licenses="MIT" \
-      org.opencontainers.image.source="https://github.com/susu/ai-pm-sandbox"
+      org.opencontainers.image.source="https://github.com/kasaviawuh111-cpu/ai-pm-sandbox"
 
 WORKDIR /app
 
