@@ -70,18 +70,18 @@
 
 ## 🚀 快速开始
 
-### 方式零：npx 直接运行（不用 git clone，最快）
-Node.js >= 18，一行命令启动，零外部依赖：
+### 方式零：从 GitHub 直接运行（不用 Clone，最快）
+Node.js >= 18，复制下面这一行启动，零外部依赖：
 
 ```bash
-npx ai-pm-sandbox
-# 如果上面找不到（尚未发布 npm），用这一行也行：
 npx --yes github:kasaviawuh111-cpu/ai-pm-sandbox
 ```
 
-启动后手动访问：**http://localhost:4173**
+终端出现 `AI PM Sandbox running at ...` 后，在浏览器打开：
 
-> ℹ️ 你自己电脑上运行，就是访问你自己的 localhost；朋友要一起玩请用下方「公网部署」。
+👉 **http://localhost:4173**
+
+> 这个命令只启动本地服务，不会自动打开浏览器。`localhost` 只能在运行命令的这台电脑上访问；要分享给朋友，请看下方「公网部署」。
 
 ---
 

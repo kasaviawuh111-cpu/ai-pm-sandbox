@@ -4,6 +4,9 @@
   "description": "一个游戏化的 AI 产品经理训练沙盒——通过真实场景闯关练判断力，支持把题目发到团队 IM 群里讨论。",
   "type": "module",
   "main": "server.js",
+  "bin": {
+    "ai-pm-sandbox": "server.js"
+  },
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
