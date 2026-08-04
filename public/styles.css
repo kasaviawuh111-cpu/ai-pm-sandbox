@@ -659,6 +659,24 @@ kbd {
   font-size: 14px;
 }
 
+.optional-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg-muted);
+  color: var(--text-subtle);
+  font-size: 11px;
+  font-weight: 700;
+  vertical-align: 1px;
+}
+
+.answer-helper {
+  margin: -2px 0 10px;
+  color: var(--text-subtle);
+  font-size: 12px;
+}
+
 .label-row-right {
   display: flex;
   align-items: center;
@@ -677,14 +695,17 @@ kbd {
 
 .voice-button {
   position: relative;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
+  min-height: 34px;
+  padding: 6px 11px;
+  border-radius: 999px;
   background: var(--bg-elevated);
   border: 1px solid var(--border-strong);
-  display: grid;
-  place-items: center;
-  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: var(--shadow-sm);
@@ -694,10 +715,16 @@ kbd {
 .voice-button:hover {
   background: var(--secondary-soft);
   border-color: var(--secondary);
-  transform: scale(1.06);
+  color: var(--secondary);
 }
 
 .voice-icon {
+  position: relative;
+  z-index: 1;
+  font-size: 14px;
+}
+
+.voice-label {
   position: relative;
   z-index: 1;
 }
@@ -714,7 +741,6 @@ kbd {
   background: var(--danger-soft);
   border-color: var(--danger);
   color: var(--danger);
-  animation: voice-shake 0.15s ease-in-out infinite alternate;
 }
 
 .voice-button.is-listening .voice-pulse {
@@ -744,7 +770,9 @@ kbd {
 }
 
 .answer-area {
-  margin-bottom: 20px;
+  margin: 4px 0 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-subtle);
 }
 
 .coach-buttons {
@@ -1338,6 +1366,9 @@ kbd {
   max-width: 580px;
   width: 92vw;
   max-height: 92vh;
+}
+
+.share-dialog[open] {
   display: flex;
   flex-direction: column;
 }
@@ -1796,6 +1827,16 @@ kbd {
     text-align: center;
     min-width: 0;
     padding: 10px 8px;
+  }
+
+  .label-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .label-row-right {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .score-summary {

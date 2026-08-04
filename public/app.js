@@ -1887,7 +1887,7 @@ function init() {
     els.voiceButton.style.cursor = "not-allowed";
   }
   if (els.answerInput) {
-    els.answerInput.placeholder = "文字理由可选（只选方案也能拿反馈）。想说的话，点右侧 🎤 按钮直接语音输入～";
+    els.answerInput.placeholder = "可选：补充你为什么选择这个方案，以及你会如何控制风险。";
   }
   renderProgress();
   renderMissionList();

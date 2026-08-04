@@ -116,22 +116,27 @@
 
               <button class="next-stage-button" id="nextStageButton" type="button" hidden></button>
 
+              <div class="choice-grid" id="choiceGrid" aria-label="Decision options"></div>
+
               <div class="answer-area">
                 <div class="label-row">
-                  <label for="answerInput">你的 AI PM 判断（文字可选，只选方案也能直接拿反馈）</label>
+                  <div>
+                    <label for="answerInput">补充你的判断</label>
+                    <span class="optional-badge">可选</span>
+                  </div>
                   <div class="label-row-right">
                     <span id="answerCount">0 / 20 字（可选）</span>
-                    <button class="voice-button" id="voiceButton" type="button" title="语音输入（说话自动转文字）" aria-label="语音输入">
-                      <span class="voice-icon">🎤</span>
+                    <button class="voice-button" id="voiceButton" type="button" title="使用语音补充判断" aria-label="语音输入">
+                      <span class="voice-icon" aria-hidden="true">🎤</span>
+                      <span class="voice-label">语音输入</span>
                       <span class="voice-pulse"></span>
                     </button>
                   </div>
                 </div>
-                <textarea id="answerInput" rows="7" placeholder="剧情最后一幕写复盘总结最佳～ 文字理由可选（只选方案也能拿基础分）。按 Ctrl+Enter 提交批改。想说话直接点右侧 🎤 按钮～"></textarea>
+                <p class="answer-helper">不填写也可以直接拿反馈；想补充取舍、风险或理由时再写。</p>
+                <textarea id="answerInput" rows="5" placeholder="可选：补充你为什么选择这个方案，以及你会如何控制风险。"></textarea>
                 <div class="coach-buttons" id="coachButtons" aria-label="Answer helpers"></div>
               </div>
-
-              <div class="choice-grid" id="choiceGrid" aria-label="Decision options"></div>
 
               <div class="panel-actions">
                 <button class="primary-action" id="scoreButton">📝 写好了 · 拿完整批改 <span class="kbd">Ctrl+Enter</span></button>
