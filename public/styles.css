@@ -775,6 +775,26 @@ kbd {
   border-top: 1px solid var(--border-subtle);
 }
 
+.confirm-choice-button {
+  display: block;
+  width: 100%;
+  margin: 0 0 18px;
+  padding: 14px 20px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  box-shadow: 0 6px 18px var(--accent-ring);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.confirm-choice-button:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
 .coach-buttons {
   display: flex;
   flex-wrap: wrap;

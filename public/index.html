@@ -113,10 +113,6 @@
 
               <div class="constraint-strip" id="constraints"></div>
 
-              <div id="consequenceBox" class="consequence-box" hidden></div>
-
-              <button class="next-stage-button" id="nextStageButton" type="button" hidden></button>
-
               <div class="choice-grid" id="choiceGrid" aria-label="Decision options"></div>
 
               <div class="answer-area">
@@ -138,6 +134,12 @@
                 <textarea id="answerInput" rows="5" placeholder="可选：补充你为什么选择这个方案，以及你会如何控制风险。"></textarea>
                 <div class="coach-buttons" id="coachButtons" aria-label="Answer helpers"></div>
               </div>
+
+              <button class="confirm-choice-button" id="confirmChoiceButton" type="button" hidden>确认这个决定</button>
+
+              <div id="consequenceBox" class="consequence-box" aria-live="polite" hidden></div>
+
+              <button class="next-stage-button" id="nextStageButton" type="button" hidden></button>
 
               <div class="panel-actions">
                 <button class="primary-action" id="scoreButton">📝 写好了 · 拿完整批改 <span class="kbd">Ctrl+Enter</span></button>

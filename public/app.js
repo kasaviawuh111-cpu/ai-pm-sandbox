@@ -553,7 +553,7 @@ function initEls() {
     "stageIndicator", "stageActLabel", "stageTimeMarker", "stageTitle",
     "prevStageSummary", "missionContext", "missionQuestion", "missionStatus",
     "constraints", "answerInput", "answerCount",
-    "coachButtons", "choiceGrid", "consequenceBox", "nextStageButton",
+    "coachButtons", "choiceGrid", "confirmChoiceButton", "consequenceBox", "nextStageButton",
     "scorePanel", "scoreHeadline", "scoreValue",
     "scoreBreakdown", "feedbackText", "xpLabel", "xpBar", "rankLabel", "rankHint",
     "stackGrid", "stackScenarioTitle", "stackScenarioContext", "backToMissionButton",
@@ -877,12 +877,20 @@ function renderStoryStage(scenario, completed) {
     }
   }
 
+  if (els.confirmChoiceButton) {
+    const choiceIndex = choice ? stage.choices.findIndex((item) => item.id === choice.id) : -1;
+    els.confirmChoiceButton.hidden = !choice || consequenceShown;
+    els.confirmChoiceButton.textContent = choiceIndex >= 0
+      ? `确认选择 ${String.fromCharCode(65 + choiceIndex)} · 看剧情结果`
+      : "确认这个决定";
+  }
+
   const showScoreButton = (isLastStage || isFinalChoice) && consequenceShown;
   if (els.scoreButton) {
     els.scoreButton.hidden = !showScoreButton;
   }
   if (els.shareCardButton) {
-    els.shareCardButton.hidden = showScoreButton;
+    els.shareCardButton.hidden = !consequenceShown || showScoreButton;
   }
 
   if (completed) {
@@ -903,6 +911,7 @@ function renderClassicScenario(scenario, completed) {
   if (els.prevStageSummary) els.prevStageSummary.hidden = true;
   if (els.consequenceBox) els.consequenceBox.hidden = true;
   if (els.nextStageButton) els.nextStageButton.hidden = true;
+  if (els.confirmChoiceButton) els.confirmChoiceButton.hidden = true;
 
   els.missionContext.textContent = scenario.context;
   els.missionQuestion.textContent = scenario.question;
@@ -969,12 +978,27 @@ function handleStageChoiceSelect(stageIndex, choiceId) {
   if (!choice) return;
 
   state.stageChoices[`${scenario.id}-s${stageIndex}`] = choiceId;
-  state.currentStageConsequenceShown = true;
+  state.currentStageConsequenceShown = false;
 
   state.stageHistory = state.stageHistory.filter((h) => h.stageIndex !== stageIndex);
+
+  renderScenario();
+}
+
+function confirmStageChoice() {
+  const scenario = getScenario();
+  const stage = getCurrentStage(scenario);
+  const choice = getSelectedChoiceForStage(stage);
+  if (!stage || !choice) {
+    showToast("请先选择一个方案");
+    return;
+  }
+
+  state.currentStageConsequenceShown = true;
+  state.stageHistory = state.stageHistory.filter((h) => h.stageIndex !== stage.index);
   state.stageHistory.push({
-    stageIndex,
-    choiceId,
+    stageIndex: stage.index,
+    choiceId: choice.id,
     choiceTitle: choice.title,
     consequence: choice.consequence || ""
   });
@@ -1776,7 +1800,7 @@ function bindKeyboard() {
         const choice = stage.choices[idx];
         if (choice) {
           handleStageChoiceSelect(stage.index, choice.id);
-          showToast(`已选 ${String.fromCharCode(65 + idx)}：${choice.title}`);
+          showToast(`已暂选 ${String.fromCharCode(65 + idx)}：${choice.title}，确认前还可以修改`);
         }
       } else {
         const idx = ["1", "2", "3"].includes(e.key)
@@ -1788,6 +1812,11 @@ function bindKeyboard() {
           showToast(`已选方案 ${e.key}：${scenario.choices[idx].title}`);
         }
       }
+      return;
+    }
+    if (e.key === "Enter" && !e.ctrlKey && !e.metaKey && els.confirmChoiceButton && !els.confirmChoiceButton.hidden) {
+      e.preventDefault();
+      confirmStageChoice();
       return;
     }
     if (e.key === "Enter" && !e.ctrlKey && !e.metaKey && els.nextStageButton && !els.nextStageButton.hidden) {
@@ -1819,6 +1848,8 @@ function bindEvents() {
     const scenario = getScenario();
     if (stageIndex !== undefined && stageIndex !== "" && isStoryScenario(scenario)) {
       handleStageChoiceSelect(Number(stageIndex), choiceId);
+      const choice = getSelectedChoiceForStage(getCurrentStage(scenario));
+      showToast(`已暂选 ${choice?.title || "方案"}，确认前还可以修改`);
     } else {
       state.selectedChoiceId = choiceId;
       document.querySelectorAll(".choice-card").forEach((item) => {
@@ -1829,6 +1860,7 @@ function bindEvents() {
   });
 
   els.nextStageButton?.addEventListener("click", goToNextStage);
+  els.confirmChoiceButton?.addEventListener("click", confirmStageChoice);
 
   els.coachButtons.addEventListener("click", (event) => {
     const button = event.target.closest("[data-coach-index]");
